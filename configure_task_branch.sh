@@ -132,6 +132,7 @@ git commit -m "Configure job with specific file versions for branch $BRANCH_NAME
 
 echo ">> Pushing new branch to remote..."
 git push origin $BRANCH_NAME
-git checkout -
+git checkout $BASE_BRANCH
+
 echo ">> fin"
 
