@@ -41,7 +41,7 @@ Then execute:
 
 ```bash
 chmod +x create_job_branch.sh
-./create_job_branch.sh --username test --base_branch dev-test
+./configure_task_branch.sh --username test --base_branch dev
 ```
 
 
