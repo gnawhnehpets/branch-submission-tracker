@@ -130,7 +130,7 @@ git add $JOB_CONFIG_FILE $FILE1 $FILE2
 echo ">> Committing changes..."
 git commit -m "Configure job with specific file versions for branch $BRANCH_NAME"
 
-# echo ">> Pushing new branch to remote..."
-# git push origin $BRANCH_NAME
+echo ">> Pushing new branch to remote..."
+git push origin $BRANCH_NAME
 
 echo ">> fin"
