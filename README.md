@@ -32,9 +32,26 @@ branch-job-tracker/
 
 ## Running local test
 
-To run the bash script locally, ensure you have the necessary permissions and a clean working directory. Then execute:
+To run the bash script locally, ensure the following: 
+- base branch exists (e.g., `dev-test`) with relevant files with commit hash
+- necessary permissions on bash script
+- clean working directory (e.g., no uncommitted changes)
+
+Then execute:
 
 ```bash
 chmod +x create_job_branch.sh
 ./create_job_branch.sh --username test --base_branch dev-test
+```
+
+
+## Running docker container
+#### Build the image
+```
+docker build -t branch-job-tracker . --no-cache
+```
+
+#### Run the container (bind the host repo if you need git context)
+```
+docker run -it --rm -v $(pwd):/app -p 8000:8000 branch-job-tracker
 ```
