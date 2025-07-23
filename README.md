@@ -2,7 +2,7 @@
 
 A lightweight Git-based job tracking tool that uses branches to manage and version-control job runs and their associated configuration.
 
-Each job is tracked via a dedicated Git branch, containing the specific files (e.g., prompts) and a `config.yml` describing the job’s inputs. A shell script (`create_job_branch.sh`) and FastAPI interface (`api_service.py`) are included to automate branch creation and job metadata management.
+Each job is tracked via a dedicated Git branch, containing the specific files (e.g., prompts) and a `config.yml` describing the job’s inputs. A shell script (`configure_task_branch.sh`) and FastAPI interface (`api_service.py`) are included to automate branch creation and job metadata management.
 
 ---
 
@@ -19,7 +19,7 @@ Each job is tracked via a dedicated Git branch, containing the specific files (e
 ## Repository Structure
 ```
 branch-job-tracker/
-├── create_job_branch.sh    # Main job-branch creation script
+├── configure_task_branch.sh    # Main job-branch creation script
 ├── api.py                  # FastAPI endpoint to trigger the script
 ├── prompt/                 # Directory containing prompt files   
 │ ├── selection.txt         
@@ -40,10 +40,10 @@ To run the bash script locally, ensure the following:
 Then execute:
 
 ```bash
-chmod +x create_job_branch.sh
+chmod +x configure_task_branch.sh
 ./configure_task_branch.sh --username test --base_branch dev
 ```
-
+This will create the branch `test-<timestamp>` with the specified files and a `config.yml` containing the commit hashes of the input files.
 
 ## Running docker container
 #### Build the image
