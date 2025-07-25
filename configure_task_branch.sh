@@ -166,7 +166,8 @@ MONGODB_CONNECTION_URL=$(grep MONGODB_CONNECTION_URL .env | cut -d '=' -f2- | tr
 echo ">> Saving config.json to MongoDB collection 'submissions' in database 'dataflexx'..."
 if command -v mongosh &> /dev/null
 then
-    mongosh "$MONGODB_CONNECTION_URL" --eval "db.getSiblingDB('dataflexx').submissions.insertOne(JSON.parse(cat('$JOB_CONFIG_JSON_FILE')))"
+    JSON_CONTENT=$(cat "$JOB_CONFIG_JSON_FILE")
+    mongosh "$MONGODB_CONNECTION_URL" --eval "db.getSiblingDB('dataflexx').submissions.insertOne(JSON.parse('$JSON_CONTENT'))"
 else
     echo "⚠️ Warning: mongosh command not found. Please install mongosh to save data to MongoDB."
 fi
