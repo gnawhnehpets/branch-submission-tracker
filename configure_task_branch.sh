@@ -2,7 +2,8 @@
 
 ###############################################################################
 # Script: configure_task_branch.sh
-#
+# ./configure_task_branch.sh --username test --base_branch dev --selection_prompt 60a283b  --rerank_prompt b9923c0
+
 # Description:
 #   This script creates a new Git branch configured with specific versions of 
 #   two prompt files (`selection_prompt.txt` and `rerank_prompt.txt`) and 
