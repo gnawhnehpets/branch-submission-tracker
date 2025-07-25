@@ -53,10 +53,10 @@ get_branch_for_commit() {
     echo "${branch_name:-$fallback_branch}"
 }
 
-# FILE1="RAJ/prompts/selection_prompt.txt"
-# FILE2="RAJ/prompts/rerank_prompt.txt"
-FILE1=./prompt/selection.txt
-FILE2=./prompt/rerank.txt
+# FILE_PROMPT_SELECTION="RAJ/prompts/selection_prompt.txt"
+# FILE_PROMPT_RERANK="RAJ/prompts/rerank_prompt.txt"
+FILE_PROMPT_SELECTION=./prompt/selection.txt
+FILE_PROMPT_RERANK=./prompt/rerank.txt
 JOB_CONFIG_DIR="./config"
 JOB_CONFIG_FILE="${JOB_CONFIG_DIR}/config.yml"
 JOB_CONFIG_JSON_FILE="${JOB_CONFIG_DIR}/config.json"
@@ -95,23 +95,23 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
     exit 1
 fi
 
-# get default commit hash for FILE1
-echo ">> Getting default commit hash for $FILE1 from branch $SELECTION_PROMPT_BRANCH"
-if ! git show "$SELECTION_PROMPT_BRANCH:$FILE1" > /dev/null 2>&1; then
-    echo "❌ Error: File '$FILE1' not found in branch '$SELECTION_PROMPT_BRANCH'"
+# get default commit hash for FILE_PROMPT_SELECTION
+echo ">> Getting default commit hash for $FILE_PROMPT_SELECTION from branch $SELECTION_PROMPT_BRANCH"
+if ! git show "$SELECTION_PROMPT_BRANCH:$FILE_PROMPT_SELECTION" > /dev/null 2>&1; then
+    echo "❌ Error: File '$FILE_PROMPT_SELECTION' not found in branch '$SELECTION_PROMPT_BRANCH'"
     exit 1
 fi
-DEFAULT_SELECTION_PROMPT_COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" "$SELECTION_PROMPT_BRANCH" -- "$FILE1")
-echo "  - Default commit hash for $FILE1: $DEFAULT_SELECTION_PROMPT_COMMIT_HASH"
+DEFAULT_SELECTION_PROMPT_COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" "$SELECTION_PROMPT_BRANCH" -- "$FILE_PROMPT_SELECTION")
+echo "  - Default commit hash for $FILE_PROMPT_SELECTION: $DEFAULT_SELECTION_PROMPT_COMMIT_HASH"
 
-# get default commit hash for FILE2
-echo ">> Getting default commit hash for $FILE2 from branch $RERANK_PROMPT_BRANCH"
-if ! git show "$RERANK_PROMPT_BRANCH:$FILE2" > /dev/null 2>&1; then
-    echo "❌ Error: File '$FILE2' not found in branch '$RERANK_PROMPT_BRANCH'"
+# get default commit hash for FILE_PROMPT_RERANK
+echo ">> Getting default commit hash for $FILE_PROMPT_RERANK from branch $RERANK_PROMPT_BRANCH"
+if ! git show "$RERANK_PROMPT_BRANCH:$FILE_PROMPT_RERANK" > /dev/null 2>&1; then
+    echo "❌ Error: File '$FILE_PROMPT_RERANK' not found in branch '$RERANK_PROMPT_BRANCH'"
     exit 1
 fi
-DEFAULT_RERANK_PROMPT_COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" "$RERANK_PROMPT_BRANCH" -- "$FILE2")
-echo "  - Default commit hash for $FILE2: $DEFAULT_RERANK_PROMPT_COMMIT_HASH"
+DEFAULT_RERANK_PROMPT_COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" "$RERANK_PROMPT_BRANCH" -- "$FILE_PROMPT_RERANK")
+echo "  - Default commit hash for $FILE_PROMPT_RERANK: $DEFAULT_RERANK_PROMPT_COMMIT_HASH"
 
 # use provided commit hash if available, otherwise fallback to default
 SELECTION_PROMPT_COMMIT_HASH=${SELECTION_PROMPT_COMMIT_HASH:-$DEFAULT_SELECTION_PROMPT_COMMIT_HASH}
@@ -134,12 +134,12 @@ git checkout -b $BRANCH_NAME
 
 # Pulling specific versions of files first to get their contents
 echo ">> Pulling specific versions of files..."
-git checkout $SELECTION_PROMPT_COMMIT_HASH -- $FILE1
-git checkout $RERANK_PROMPT_COMMIT_HASH -- $FILE2
+git checkout $SELECTION_PROMPT_COMMIT_HASH -- $FILE_PROMPT_SELECTION
+git checkout $RERANK_PROMPT_COMMIT_HASH -- $FILE_PROMPT_RERANK
 
 # Get file contents
-SELECTION_PROMPT_CONTENT=$(cat $FILE1)
-RERANK_PROMPT_CONTENT=$(cat $FILE2)
+SELECTION_PROMPT_CONTENT=$(cat $FILE_PROMPT_SELECTION)
+RERANK_PROMPT_CONTENT=$(cat $FILE_PROMPT_RERANK)
 
 echo ">> Creating job config file: $JOB_CONFIG_FILE"
 echo ">> Creating job config JSON file: $JOB_CONFIG_JSON_FILE"
@@ -150,12 +150,12 @@ cat <<EOF > $JOB_CONFIG_FILE
 base_branch: $BASE_BRANCH
 branch_name: $BRANCH_NAME
 files:
-  - path: $FILE1
+  - path: $FILE_PROMPT_SELECTION
     commit_hash: $SELECTION_PROMPT_COMMIT_HASH
     source_branch: $SELECTION_PROMPT_COMMIT_BRANCH
     content: |
 $(echo "$SELECTION_PROMPT_CONTENT" | sed 's/^/      /')
-  - path: $FILE2
+  - path: $FILE_PROMPT_RERANK
     commit_hash: $RERANK_PROMPT_COMMIT_HASH
     source_branch: $RERANK_PROMPT_COMMIT_BRANCH
     content: |
@@ -165,6 +165,7 @@ EOF
 # Create JSON config file with file contents
 # use printf to properly escape the content for JSON
 printf '{
+  "username": "%s",
   "base_branch": "%s",
   "branch_name": "%s",
   "files": [
@@ -181,13 +182,14 @@ printf '{
       "content": "%s"
     }
   ]
-}'  "$BASE_BRANCH" \
+}'  "$USERNAME" \
+    "$BASE_BRANCH" \
     "$BRANCH_NAME" \
-    "$FILE1" \
+    "$FILE_PROMPT_SELECTION" \
     "$SELECTION_PROMPT_COMMIT_HASH" \
     "$SELECTION_PROMPT_COMMIT_BRANCH" \
     "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" \
-    "$FILE2" \
+    "$FILE_PROMPT_RERANK" \
     "$RERANK_PROMPT_COMMIT_HASH" \
     "$RERANK_PROMPT_COMMIT_BRANCH" \
     "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
@@ -207,7 +209,7 @@ fi
 
 echo ">> Adding job config file and specific file versions to git..."
 git add $JOB_CONFIG_JSON_FILE
-git add $JOB_CONFIG_FILE $FILE1 $FILE2
+git add $JOB_CONFIG_FILE $FILE_PROMPT_SELECTION $FILE_PROMPT_RERANK
 
 echo ">> Committing changes..."
 git commit -m "Configure job with specific file versions for branch $BRANCH_NAME and JSON config with file contents"
