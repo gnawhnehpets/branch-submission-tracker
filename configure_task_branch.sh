@@ -37,6 +37,22 @@
 #   - The new branch is named <username>-<timestamp>.
 ###############################################################################
 
+# Function to get branch name that contains a given commit
+get_branch_for_commit() {
+    local commit_hash=$1
+    local fallback_branch=$2
+
+    # Try to find local branch
+    branch_name=$(git branch --contains "$commit_hash" --format="%(refname:short)" | head -n 1)
+
+    # If not found locally, try remote
+    if [ -z "$branch_name" ]; then
+        branch_name=$(git for-each-ref --format="%(refname:short)" --contains "$commit_hash" refs/remotes | head -n 1)
+    fi
+
+    echo "${branch_name:-$fallback_branch}"
+}
+
 # FILE1="RAJ/prompts/selection_prompt.txt"
 # FILE2="RAJ/prompts/rerank_prompt.txt"
 FILE1=./prompt/selection.txt
@@ -101,6 +117,10 @@ echo "  - Default commit hash for $FILE2: $DEFAULT_RERANK_PROMPT_COMMIT_HASH"
 SELECTION_PROMPT_COMMIT_HASH=${SELECTION_PROMPT_COMMIT_HASH:-$DEFAULT_SELECTION_PROMPT_COMMIT_HASH}
 RERANK_PROMPT_COMMIT_HASH=${RERANK_PROMPT_COMMIT_HASH:-$DEFAULT_RERANK_PROMPT_COMMIT_HASH}
 
+# determine branch names for commit hashes
+SELECTION_PROMPT_COMMIT_BRANCH=$(get_branch_for_commit "$SELECTION_PROMPT_COMMIT_HASH" "$SELECTION_PROMPT_BRANCH")
+RERANK_PROMPT_COMMIT_BRANCH=$(get_branch_for_commit "$RERANK_PROMPT_COMMIT_HASH" "$RERANK_PROMPT_BRANCH")
+
 # checkout base branch before continuing
 echo ">> Checking out base branch: $BASE_BRANCH"
 git checkout $BASE_BRANCH
@@ -132,16 +152,18 @@ branch_name: $BRANCH_NAME
 files:
   - path: $FILE1
     commit_hash: $SELECTION_PROMPT_COMMIT_HASH
+    source_branch: $SELECTION_PROMPT_COMMIT_BRANCH
     content: |
 $(echo "$SELECTION_PROMPT_CONTENT" | sed 's/^/      /')
   - path: $FILE2
     commit_hash: $RERANK_PROMPT_COMMIT_HASH
+    source_branch: $RERANK_PROMPT_COMMIT_BRANCH
     content: |
 $(echo "$RERANK_PROMPT_CONTENT" | sed 's/^/      /')
 EOF
 
 # Create JSON config file with file contents
-# Use printf to properly escape the content for JSON
+# use printf to properly escape the content for JSON
 printf '{
   "base_branch": "%s",
   "branch_name": "%s",
@@ -149,15 +171,26 @@ printf '{
     {
       "path": "%s",
       "commit_hash": "%s",
+      "source_branch": "%s",
       "content": "%s"
     },
     {
       "path": "%s",
       "commit_hash": "%s",
+      "source_branch": "%s",
       "content": "%s"
     }
   ]
-}' "$BASE_BRANCH" "$BRANCH_NAME" "$FILE1" "$SELECTION_PROMPT_COMMIT_HASH" "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" "$FILE2" "$RERANK_PROMPT_COMMIT_HASH" "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
+}'  "$BASE_BRANCH" \
+    "$BRANCH_NAME" \
+    "$FILE1" \
+    "$SELECTION_PROMPT_COMMIT_HASH" \
+    "$SELECTION_PROMPT_COMMIT_BRANCH" \
+    "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/$/\\n/' | tr -d '\n')" \
+    "$FILE2" \
+    "$RERANK_PROMPT_COMMIT_HASH" \
+    "$RERANK_PROMPT_COMMIT_BRANCH" \
+    "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/$/\\n/' | tr -d '\n')" > $JOB_CONFIG_JSON_FILE
 
 # Read MongoDB connection URL from .env
 MONGODB_CONNECTION_URL=$(grep MONGODB_CONNECTION_URL .env | cut -d '=' -f2- | tr -d '"')
