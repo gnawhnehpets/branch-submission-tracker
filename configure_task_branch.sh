@@ -164,12 +164,11 @@ MONGODB_CONNECTION_URL=$(grep MONGODB_CONNECTION_URL .env | cut -d '=' -f2- | tr
 
 # Save JSON content to MongoDB
 echo ">> Saving config.json to MongoDB collection 'submissions' in database 'dataflexx'..."
-if command -v mongosh &> /dev/null
+if command -v mongoimport &> /dev/null
 then
-    JSON_CONTENT=$(cat "$JOB_CONFIG_JSON_FILE")
-    mongosh "$MONGODB_CONNECTION_URL" --eval "db.getSiblingDB('dataflexx').submissions.insertOne(JSON.parse('$JSON_CONTENT'))"
+    mongoimport --uri "$MONGODB_CONNECTION_URL" --db dataflexx --collection submissions --file "$JOB_CONFIG_JSON_FILE" --jsonArray
 else
-    echo "⚠️ Warning: mongosh command not found. Please install mongosh to save data to MongoDB."
+    echo "⚠️ Warning: mongoimport command not found. Please install MongoDB Database Tools to save data to MongoDB."
 fi
 
 echo ">> Adding job config file and specific file versions to git..."
