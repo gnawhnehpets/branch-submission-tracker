@@ -1,0 +1,13 @@
+base_branch: dev
+branch_name: test-07-25_14-51-51
+files:
+  - path: ./prompt/selection.txt
+    commit_hash: 60a283b
+    source_branch: dev-test-2
+    content: |
+      test2-B
+  - path: ./prompt/rerank.txt
+    commit_hash: e0a967e
+    source_branch: dev-test
+    content: |
+      test-B
