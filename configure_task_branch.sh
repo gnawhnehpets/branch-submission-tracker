@@ -112,44 +112,56 @@ BRANCH_NAME="${USERNAME}-${TIMESTAMP}"
 echo ">> Creating new branch: $BRANCH_NAME"
 git checkout -b $BRANCH_NAME
 
+# Pulling specific versions of files first to get their contents
+echo ">> Pulling specific versions of files..."
+git checkout $SELECTION_PROMPT_COMMIT_HASH -- $FILE1
+git checkout $RERANK_PROMPT_COMMIT_HASH -- $FILE2
+
+# Get file contents
+SELECTION_PROMPT_CONTENT=$(cat $FILE1)
+RERANK_PROMPT_CONTENT=$(cat $FILE2)
+
 echo ">> Creating job config file: $JOB_CONFIG_FILE"
 echo ">> Creating job config JSON file: $JOB_CONFIG_JSON_FILE"
 mkdir -p $JOB_CONFIG_DIR
+
+# Create YAML config file with file contents
 cat <<EOF > $JOB_CONFIG_FILE
 files:
   - path: $FILE1
     commit_hash: $SELECTION_PROMPT_COMMIT_HASH
+    content: |
+$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/^/      /')
   - path: $FILE2
     commit_hash: $RERANK_PROMPT_COMMIT_HASH
+    content: |
+$(echo "$RERANK_PROMPT_CONTENT" | sed 's/^/      /')
 EOF
 
-# Create JSON config file
+# Create JSON config file with file contents
 cat <<EOF > $JOB_CONFIG_JSON_FILE
 {
   "files": [
     {
       "path": "$FILE1",
-      "commit_hash": "$SELECTION_PROMPT_COMMIT_HASH"
+      "commit_hash": "$SELECTION_PROMPT_COMMIT_HASH",
+      "content": $(echo "$SELECTION_PROMPT_CONTENT" | jq -Rs .)
     },
     {
       "path": "$FILE2",
-      "commit_hash": "$RERANK_PROMPT_COMMIT_HASH"
+      "commit_hash": "$RERANK_PROMPT_COMMIT_HASH",
+      "content": $(echo "$RERANK_PROMPT_CONTENT" | jq -Rs .)
     }
   ]
 }
 EOF
-
-echo ">> Pulling specific versions of files..."
-git checkout $SELECTION_PROMPT_COMMIT_HASH -- $FILE1
-git checkout $RERANK_PROMPT_COMMIT_HASH -- $FILE2
 
 echo ">> Adding job config file and specific file versions to git..."
 git add $JOB_CONFIG_JSON_FILE
 git add $JOB_CONFIG_FILE $FILE1 $FILE2
 
 echo ">> Committing changes..."
-git commit -m "Configure job with specific file versions for branch $BRANCH_NAME and JSON config"
-
+git commit -m "Configure job with specific file versions for branch $BRANCH_NAME and JSON config with file contents"
 echo ">> Pushing new branch to remote..."
 git push origin $BRANCH_NAME
 git checkout $BASE_BRANCH
