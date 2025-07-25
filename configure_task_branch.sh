@@ -186,11 +186,12 @@ printf '{
     "$FILE1" \
     "$SELECTION_PROMPT_COMMIT_HASH" \
     "$SELECTION_PROMPT_COMMIT_BRANCH" \
-    "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/$/\\n/' | tr -d '\n')" \
+    "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" \
     "$FILE2" \
     "$RERANK_PROMPT_COMMIT_HASH" \
     "$RERANK_PROMPT_COMMIT_BRANCH" \
-    "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/$/\\n/' | tr -d '\n')" > $JOB_CONFIG_JSON_FILE
+    "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
+    
 
 # Read MongoDB connection URL from .env
 MONGODB_CONNECTION_URL=$(grep MONGODB_CONNECTION_URL .env | cut -d '=' -f2- | tr -d '"')
