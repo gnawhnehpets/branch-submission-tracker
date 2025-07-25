@@ -139,22 +139,21 @@ $(echo "$RERANK_PROMPT_CONTENT" | sed 's/^/      /')
 EOF
 
 # Create JSON config file with file contents
-cat <<EOF > $JOB_CONFIG_JSON_FILE
-{
+# Use printf to properly escape the content for JSON
+printf '{
   "files": [
     {
-      "path": "$FILE1",
-      "commit_hash": "$SELECTION_PROMPT_COMMIT_HASH",
-      "content": $(echo "$SELECTION_PROMPT_CONTENT" | jq -Rs .)
+      "path": "%s",
+      "commit_hash": "%s",
+      "content": "%s"
     },
     {
-      "path": "$FILE2",
-      "commit_hash": "$RERANK_PROMPT_COMMIT_HASH",
-      "content": $(echo "$RERANK_PROMPT_CONTENT" | jq -Rs .)
+      "path": "%s",
+      "commit_hash": "%s",
+      "content": "%s"
     }
   ]
-}
-EOF
+}' "$FILE1" "$SELECTION_PROMPT_COMMIT_HASH" "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" "$FILE2" "$RERANK_PROMPT_COMMIT_HASH" "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
 
 echo ">> Adding job config file and specific file versions to git..."
 git add $JOB_CONFIG_JSON_FILE
