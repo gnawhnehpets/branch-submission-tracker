@@ -127,6 +127,8 @@ mkdir -p $JOB_CONFIG_DIR
 
 # Create YAML config file with file contents
 cat <<EOF > $JOB_CONFIG_FILE
+base_branch: $BASE_BRANCH
+branch_name: $BRANCH_NAME
 files:
   - path: $FILE1
     commit_hash: $SELECTION_PROMPT_COMMIT_HASH
@@ -141,6 +143,8 @@ EOF
 # Create JSON config file with file contents
 # Use printf to properly escape the content for JSON
 printf '{
+  "base_branch": "%s",
+  "branch_name": "%s",
   "files": [
     {
       "path": "%s",
@@ -153,7 +157,19 @@ printf '{
       "content": "%s"
     }
   ]
-}' "$FILE1" "$SELECTION_PROMPT_COMMIT_HASH" "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" "$FILE2" "$RERANK_PROMPT_COMMIT_HASH" "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
+}' "$BASE_BRANCH" "$BRANCH_NAME" "$FILE1" "$SELECTION_PROMPT_COMMIT_HASH" "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" "$FILE2" "$RERANK_PROMPT_COMMIT_HASH" "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
+
+# Read MongoDB connection URL from .env
+MONGODB_CONNECTION_URL=$(grep MONGODB_CONNECTION_URL .env | cut -d '=' -f2- | tr -d '"')
+
+# Save JSON content to MongoDB
+echo ">> Saving config.json to MongoDB collection 'submissions' in database 'dataflexx'..."
+if command -v mongosh &> /dev/null
+then
+    mongosh "$MONGODB_CONNECTION_URL" --eval "db.getSiblingDB('dataflexx').submissions.insertOne(JSON.parse(cat('$JOB_CONFIG_JSON_FILE')))"
+else
+    echo "⚠️ Warning: mongosh command not found. Please install mongosh to save data to MongoDB."
+fi
 
 echo ">> Adding job config file and specific file versions to git..."
 git add $JOB_CONFIG_JSON_FILE
