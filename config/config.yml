@@ -1,0 +1,9 @@
+files:
+  - path: ./prompt/selection.txt
+    commit_hash: 60a283b
+    content: |
+      test2-B
+  - path: ./prompt/rerank.txt
+    commit_hash: e0a967e
+    content: |
+      test-B
