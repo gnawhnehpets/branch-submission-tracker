@@ -166,7 +166,7 @@ MONGODB_CONNECTION_URL=$(grep MONGODB_CONNECTION_URL .env | cut -d '=' -f2- | tr
 echo ">> Saving config.json to MongoDB collection 'submissions' in database 'dataflexx'..."
 if command -v mongoimport &> /dev/null
 then
-    mongoimport --uri "$MONGODB_CONNECTION_URL" --db dataflexx --collection submissions --file "$JOB_CONFIG_JSON_FILE" --jsonArray
+    mongoimport --uri "$MONGODB_CONNECTION_URL" --db dataflexx --collection submissions --file "$JOB_CONFIG_JSON_FILE"
 else
     echo "⚠️ Warning: mongoimport command not found. Please install MongoDB Database Tools to save data to MongoDB."
 fi
