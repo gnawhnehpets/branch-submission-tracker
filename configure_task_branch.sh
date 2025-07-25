@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Script: configure_task_branch.sh
-# ./configure_task_branch.sh --username test --base_branch dev --selection_prompt 60a283b  --rerank_prompt b9923c0
+# ./configure_task_branch.sh --username test --base_branch dev --selection_prompt 60a283b  --rerank_prompt e0a967e
 
 # Description:
 #   This script creates a new Git branch configured with specific versions of 
@@ -43,6 +43,7 @@ FILE1=./prompt/selection.txt
 FILE2=./prompt/rerank.txt
 JOB_CONFIG_DIR="./config"
 JOB_CONFIG_FILE="${JOB_CONFIG_DIR}/config.yml"
+JOB_CONFIG_JSON_FILE="${JOB_CONFIG_DIR}/config.json"
 
 # default values for optional parameters
 USERNAME="stephen"
@@ -112,6 +113,7 @@ echo ">> Creating new branch: $BRANCH_NAME"
 git checkout -b $BRANCH_NAME
 
 echo ">> Creating job config file: $JOB_CONFIG_FILE"
+echo ">> Creating job config JSON file: $JOB_CONFIG_JSON_FILE"
 mkdir -p $JOB_CONFIG_DIR
 cat <<EOF > $JOB_CONFIG_FILE
 files:
@@ -121,19 +123,35 @@ files:
     commit_hash: $RERANK_PROMPT_COMMIT_HASH
 EOF
 
+# Create JSON config file
+cat <<EOF > $JOB_CONFIG_JSON_FILE
+{
+  "files": [
+    {
+      "path": "$FILE1",
+      "commit_hash": "$SELECTION_PROMPT_COMMIT_HASH"
+    },
+    {
+      "path": "$FILE2",
+      "commit_hash": "$RERANK_PROMPT_COMMIT_HASH"
+    }
+  ]
+}
+EOF
+
 echo ">> Pulling specific versions of files..."
 git checkout $SELECTION_PROMPT_COMMIT_HASH -- $FILE1
 git checkout $RERANK_PROMPT_COMMIT_HASH -- $FILE2
 
 echo ">> Adding job config file and specific file versions to git..."
+git add $JOB_CONFIG_JSON_FILE
 git add $JOB_CONFIG_FILE $FILE1 $FILE2
 
 echo ">> Committing changes..."
-git commit -m "Configure job with specific file versions for branch $BRANCH_NAME"
+git commit -m "Configure job with specific file versions for branch $BRANCH_NAME and JSON config"
 
 echo ">> Pushing new branch to remote..."
 git push origin $BRANCH_NAME
 git checkout $BASE_BRANCH
 
 echo ">> fin"
-
