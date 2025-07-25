@@ -2,15 +2,13 @@
 
 ###############################################################################
 # Script: configure_task_branch.sh
-# ./configure_task_branch.sh --username test --base_branch dev --selection_prompt 60a283b  --rerank_prompt e0a967e
 
 # Description:
 #   This script creates a new Git branch configured with specific versions of 
-#   two prompt files (`selection_prompt.txt` and `rerank_prompt.txt`) and 
-#   generates a `config.yml` file to capture those versions.
+#   files captured as arguments and generates a `config.yml` file to capture those versions.
 #
 #   It optionally allows specifying commit hashes and source branches for the 
-#   prompt files. If not provided, the latest commits from the specified branches 
+#   prompt files. If not provided, the latest commits from base branch
 #   are used. The script checks out those file versions, commits them along with 
 #   the config file, and prepares a new branch for pushing.
 #
@@ -27,10 +25,9 @@
 #
 # Example:
 #   ./configure_task_branch.sh \
-#     --username stephen \
-#     --base_branch dev \
-#     --selection_prompt_branch feature/sel \
-#     --rerank_prompt_branch feature/rerank
+#     --username test \
+#     --selection_prompt abcd1234\
+#     --rerank_prompt 4321dcba
 #
 # Notes:
 #   - By default, all branches default to "dev" unless overridden.
