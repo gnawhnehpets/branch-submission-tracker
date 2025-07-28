@@ -1,0 +1,19 @@
+{
+  "username": "test",
+  "base_branch": "dev",
+  "branch_name": "test-07-28_14-05-38",
+  "files": [
+    {
+      "path": "./prompt/selection.txt",
+      "source_branch": "abcd1234",
+      "source_commit_hash": "dev",
+      "content": "base-A"
+    },
+    {
+      "path": "./prompt/rerank.txt",
+      "source_branch": "4321dcba",
+      "source_commit_hash": "dev",
+      "content": "base-A"
+    }
+  ]
+}

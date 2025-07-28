@@ -1,0 +1,13 @@
+base_branch: dev
+branch_name: test-07-28_14-05-38
+files:
+  - path: ./prompt/selection.txt
+    commit_hash: abcd1234
+    source_branch: dev
+    content: |
+      base-A
+  - path: ./prompt/rerank.txt
+    commit_hash: 4321dcba
+    source_branch: dev
+    content: |
+      base-A
