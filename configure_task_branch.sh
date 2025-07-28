@@ -24,10 +24,10 @@
 #   --rerank_prompt_branch <branch>       # Branch to fetch rerank prompt hash from
 #
 # Example:
-#   ./configure_task_branch.sh \
-#     --username test \
-#     --selection_prompt abcd1234\
-#     --rerank_prompt 4321dcba
+  # ./configure_task_branch.sh \
+  #   --username test \
+  #   --selection_prompt abcd1234\
+  #   --rerank_prompt 4321dcba
 #
 # Notes:
 #   - By default, all branches default to "dev" unless overridden.
@@ -183,8 +183,8 @@ printf '{
     "$BASE_BRANCH" \
     "$BRANCH_NAME" \
     "$FILE_PROMPT_SELECTION" \
-    "$SELECTION_PROMPT_COMMIT_HASH" \
     "$SELECTION_PROMPT_COMMIT_BRANCH" \
+    "$SELECTION_PROMPT_COMMIT_HASH" \
     "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" \
     "$FILE_PROMPT_RERANK" \
     "$RERANK_PROMPT_COMMIT_HASH" \
