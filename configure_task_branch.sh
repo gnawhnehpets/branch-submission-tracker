@@ -168,14 +168,14 @@ printf '{
   "files": [
     {
       "path": "%s",
-      "commit_hash": "%s",
       "source_branch": "%s",
+      "source_commit_hash": "%s",
       "content": "%s"
     },
     {
       "path": "%s",
-      "commit_hash": "%s",
       "source_branch": "%s",
+      "source_commit_hash": "%s",
       "content": "%s"
     }
   ]
@@ -192,10 +192,10 @@ printf '{
     "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
     
 
-# Read MongoDB connection URL from .env
+# read MongoDB connection URL from .env
 MONGODB_CONNECTION_URL=$(grep MONGODB_CONNECTION_URL .env | cut -d '=' -f2- | tr -d '"')
 
-# Save JSON content to MongoDB
+# save JSON content to MongoDB
 echo ">> Saving config.json to MongoDB collection 'submissions' in database 'dataflexx'..."
 if command -v mongoimport &> /dev/null
 then
