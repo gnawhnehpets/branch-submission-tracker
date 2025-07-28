@@ -1,0 +1,13 @@
+base_branch: dev
+branch_name: stephen-07-28_14-03-38
+files:
+  - path: ./prompt/selection.txt
+    commit_hash: c0d60848bd57a5610bc8a7ee697ad5d4abf0f69f
+    source_branch: dev
+    content: |
+      base-A
+  - path: ./prompt/rerank.txt
+    commit_hash: c0d60848bd57a5610bc8a7ee697ad5d4abf0f69f
+    source_branch: dev
+    content: |
+      base-A

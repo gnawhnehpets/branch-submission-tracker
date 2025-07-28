@@ -1,0 +1,19 @@
+{
+  "username": "stephen",
+  "base_branch": "dev",
+  "branch_name": "stephen-07-28_14-03-38",
+  "files": [
+    {
+      "path": "./prompt/selection.txt",
+      "source_branch": "c0d60848bd57a5610bc8a7ee697ad5d4abf0f69f",
+      "source_commit_hash": "dev",
+      "content": "base-A"
+    },
+    {
+      "path": "./prompt/rerank.txt",
+      "source_branch": "c0d60848bd57a5610bc8a7ee697ad5d4abf0f69f",
+      "source_commit_hash": "dev",
+      "content": "base-A"
+    }
+  ]
+}
