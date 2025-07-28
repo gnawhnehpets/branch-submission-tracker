@@ -148,13 +148,13 @@ base_branch: $BASE_BRANCH
 branch_name: $BRANCH_NAME
 files:
   - path: $FILE_PROMPT_SELECTION
-    commit_hash: $SELECTION_PROMPT_COMMIT_HASH
     source_branch: $SELECTION_PROMPT_COMMIT_BRANCH
+    commit_hash: $SELECTION_PROMPT_COMMIT_HASH
     content: |
 $(echo "$SELECTION_PROMPT_CONTENT" | sed 's/^/      /')
   - path: $FILE_PROMPT_RERANK
-    commit_hash: $RERANK_PROMPT_COMMIT_HASH
     source_branch: $RERANK_PROMPT_COMMIT_BRANCH
+    commit_hash: $RERANK_PROMPT_COMMIT_HASH
     content: |
 $(echo "$RERANK_PROMPT_CONTENT" | sed 's/^/      /')
 EOF
@@ -187,8 +187,8 @@ printf '{
     "$SELECTION_PROMPT_COMMIT_HASH" \
     "$(echo "$SELECTION_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" \
     "$FILE_PROMPT_RERANK" \
-    "$RERANK_PROMPT_COMMIT_HASH" \
     "$RERANK_PROMPT_COMMIT_BRANCH" \
+    "$RERANK_PROMPT_COMMIT_HASH" \
     "$(echo "$RERANK_PROMPT_CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/\n/\\n/g')" > $JOB_CONFIG_JSON_FILE
     
 
